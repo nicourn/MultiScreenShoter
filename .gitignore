@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+Будет удалено .idea/.gitignore
+Будет удалено .idea/MyMultiScreenShoter.iml
+Будет удалено .idea/misc.xml
+Будет удалено .idea/modules.xml
+Будет удалено .idea/vcs.xml
