@@ -1,10 +1,11 @@
 import tkinter as tk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageChops
 import pyscreenshot
 import random
 from multiprocessing import Queue
 from threading import Thread
 from time import sleep
+from os import mkdir
 
 
 class ScreenShoter():
@@ -12,10 +13,13 @@ class ScreenShoter():
     topx, topy, botx, boty = (0, 0, 0, 0)
     id = random.randint(0, 1000)
 
-    def __init__(self, prefix=""):
+    def __init__(self, prefix="", path=''):
         self.rect_id = None
         self.num = 0
         self.prefix = prefix
+        self.path = path
+        if len(self.path) > 0:
+            mkdir(self.path)
 
     def take_screen(self, name=""):
         global img
@@ -26,7 +30,7 @@ class ScreenShoter():
             name = f"{ScreenShoter.id}_{self.prefix}_{self.num}.bmp"
             img = pyscreenshot.grab(bbox=(ScreenShoter.topx, ScreenShoter.topy,
                                           ScreenShoter.botx, ScreenShoter.boty))
-        ScreenShoter.queue.put([img, name])
+        ScreenShoter.queue.put([img, self.path + name])
         self.num += 1
 
     def get_area(self):
@@ -73,7 +77,7 @@ class ScreenShoter():
 
 class ScreenFromTime(Thread):
     def __init__(self, screen, time):
-        Thread.__init__(self)
+        Thread.__init__(self, daemon=True)
         self.screen: ScreenShoter = screen
         self.time = time
 

@@ -3,7 +3,7 @@ from threading import Thread
 
 class KeyListener(Thread):
     def __init__(self, shoter):
-        Thread.__init__(self)
+        Thread.__init__(self, daemon=True)
         self.combinations = [{keyboard.Key.shift, keyboard.KeyCode(char='s')},
                              {keyboard.Key.shift, keyboard.KeyCode(char='S')}]
         self.current = set()
