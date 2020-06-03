@@ -1,6 +1,7 @@
 from pynput import keyboard
 from threading import Thread
 
+
 class KeyListener(Thread):
     def __init__(self, shoter):
         Thread.__init__(self, daemon=True)
@@ -13,7 +14,9 @@ class KeyListener(Thread):
         if any([key in COMBO for COMBO in self.combinations]):
             self.current.add(key)
             if any(all(k in self.current for k in COMBO) for COMBO in self.combinations):
-                self.screen_shoter.take_screen(f"{self.screen_shoter.id}_{self.screen_shoter.prefix}{self.screen_shoter.num}.bmp")
+                self.screen_shoter.take_screen(f"{self.screen_shoter.id}_"
+                                               f"{self.screen_shoter.prefix}"
+                                               f"{self.screen_shoter.num}.bmp")
 
     def on_release(self, key):
         if any([key in COMBO for COMBO in self.combinations]):
