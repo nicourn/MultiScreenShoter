@@ -11,6 +11,7 @@ from_key.screen_shoter.fix_coord()
 from_key.start()
 
 from_time.start()
+to_remove = []
 
 try:
     while True:
@@ -19,9 +20,18 @@ try:
         img[0].save(img[1])
         print(f"{img[1]} saved")
 
-        os.remove(img[1])
-        print(f"{img[1]} deleted")
+        if img[1].startswith("key") and len(to_remove) != 0 and img[0].tobytes() == to_remove[0].tobytes():
+            print("eq")
+        else:
+            print("bad")
+
+        if len(to_remove) != 0:
+            os.remove(to_remove[1])
+        to_remove = img
+
 except KeyboardInterrupt:
+    if len(to_remove) != 0:
+        os.remove(to_remove[1])
     dirs = os.listdir()
     for dir in dirs:
         if os.path.isdir(dir) and dir[0].isalpha():
