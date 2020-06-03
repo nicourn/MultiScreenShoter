@@ -2,16 +2,15 @@ from screenshoter import ScreenShoter, ScreenFromTime
 from hotkeyer import KeyListener
 import os, time
 
-from_time = ScreenFromTime(ScreenShoter("time", "time/"), 3)
+from_time = ScreenFromTime(ScreenShoter("time", "main/"), 3)
 from_key = KeyListener(ScreenShoter("key", "key/"))
-
-from_key.screen_shoter.get_area()
-
-img = ScreenShoter.queue.get()
-img[0].save(img[1])
-from_key.screen_shoter.fix_coord()
-to_remove = img
-os.remove(img[1])
+for i in range(3):
+    from_key.screen_shoter.add_area()
+    img = ScreenShoter.queue.get()
+    img[0].save(img[1])
+    from_key.screen_shoter.fix_coord()
+    to_remove = img
+    os.remove(img[1])
 
 from_key.start()
 from_time.start()
@@ -28,7 +27,8 @@ try:
         img = ScreenShoter.queue.get()
 
         ishotkey = img[1].startswith("key")
-        notequal = img[0].tobytes() != to_remove[0].tobytes()
+        for cached_img in range(100):
+            notequal = img[0].tobytes() != to_remove[0].tobytes()
 
         if ishotkey or notequal:
             send(img)
@@ -42,3 +42,5 @@ except:
     for dir in dirs:
         if os.path.isdir(dir) and dir[0].isalpha():
             os.removedirs(dir)
+
+
