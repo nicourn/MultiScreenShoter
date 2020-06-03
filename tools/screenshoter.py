@@ -29,7 +29,7 @@ class ScreenShoter():
             ScreenShoter.queue.put([img, self.path + name])
             self.num += 1
         else:
-            for area, i in enumerate(ScreenShoter.areas):
+            for i, area in enumerate(ScreenShoter.areas):
                 name = f"{ScreenShoter.id}_{self.prefix}_{self.num}.bmp"
                 img = pyscreenshot.grab(bbox=(area[0], area[1],
                                               area[2], area[3]))
