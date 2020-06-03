@@ -3,12 +3,13 @@ from tools.hotkeyer import KeyListener
 import os, time, configparser
 
 os.mkdir("cache")
-
-from_time = ScreenFromTime(ScreenShoter("time", "cache/main/"), 3)
-from_key = KeyListener(ScreenShoter("key", "cache/key/"))
-to_remove = []
 config = configparser.ConfigParser()
 config.read("config.ini")
+pause = int(config["Setting"]["pause"])
+from_time = ScreenFromTime(ScreenShoter("time", "cache/main/"), pause)
+from_key = KeyListener(ScreenShoter("key", "cache/key/"))
+to_remove = []
+
 
 
 for i in range(int(config["Setting"]["area_num"])):
