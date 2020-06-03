@@ -1,27 +1,34 @@
 from tools.screenshoter import ScreenShoter, ScreenFromTime
 from tools.hotkeyer import KeyListener
-import os, time
+import os, time, configparser
 
 os.mkdir("cache")
 
 from_time = ScreenFromTime(ScreenShoter("time", "cache/main/"), 3)
 from_key = KeyListener(ScreenShoter("key", "cache/key/"))
 to_remove = []
-for i in range(3):
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+
+for i in range(int(config["Setting"]["area_num"])):
     from_key.screen_shoter.add_area()
-    img = ScreenShoter.queue.get()
-    img[0].save(img[1])
+    if i == 0:
+        img = ScreenShoter.queue.get()
+        img[0].save(img[1])
+        to_remove.append(img)
     from_key.screen_shoter.fix_coord()
-    os.remove(img[1])
+img = to_remove.pop()
+os.remove(img[1])
 
 from_key.start()
-# from_time.start()
+from_time.start()
 
 
 
 def send(img):
     print(f"{img[1]} sending...")
-    img[0].save(img[1])
+    # img[0].save(img[1])
     time.sleep(0.1)
     print("Sended")
 
@@ -49,12 +56,12 @@ try:
             print("Not send")
 
 except :
-    print("err")
     os.chdir("cache")
     dirs = os.listdir()
     for dir in dirs:
-        if os.path.isdir(dir) and dir[0].isalpha():
+        if os.path.isdir(dir) and dir[0].isalpha() and dir != "tools":
             os.removedirs(dir)
+
     os.chdir("../")
     os.removedirs("cache")
 

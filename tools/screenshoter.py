@@ -5,7 +5,7 @@ import random
 from multiprocessing import Queue
 from threading import Thread
 from time import sleep
-from os import mkdir
+from os import mkdir, listdir, getcwdb
 
 
 class ScreenShoter():
@@ -26,8 +26,7 @@ class ScreenShoter():
         if name == "all_area.bmp":
             img = pyscreenshot.grab()
             img.save(name, "BMP")
-            ScreenShoter.queue.put([img, self.path + name])
-            self.num += 1
+            ScreenShoter.queue.put([img, name, -1])
         else:
             for i, area in enumerate(ScreenShoter.areas):
                 name = f"{ScreenShoter.id}_{self.prefix}_{self.num}.bmp"
@@ -38,7 +37,10 @@ class ScreenShoter():
 
     def add_area(self):
         path = "all_area.bmp"
-        self.take_screen(path)
+
+        if path not in listdir():
+            self.take_screen(path)
+
         index = len(ScreenShoter.areas)
         ScreenShoter.areas.append([0, 0, 0, 0])
 
