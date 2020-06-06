@@ -1,11 +1,11 @@
-import tkinter as tk
-from PIL import Image, ImageTk, ImageChops
 import pyscreenshot
 import random
+import tkinter as tk
+from PIL import Image, ImageTk
 from multiprocessing import Queue
 from threading import Thread
 from time import sleep
-from os import mkdir, listdir, getcwdb
+from os import listdir
 
 
 class ScreenShoter():
@@ -13,26 +13,21 @@ class ScreenShoter():
     areas = []
     id = random.randint(0, 1000)
 
-    def __init__(self, prefix="", path=''):
+    def __init__(self):
         self.rect_id = None
         self.num = 0
-        self.prefix = prefix
-        self.path = path
-        if len(self.path) > 0:
-            mkdir(self.path)
 
     def take_screen(self, name=""):
-        global img
         if name == "all_area.bmp":
             img = pyscreenshot.grab()
             img.save(name, "BMP")
             ScreenShoter.queue.put([img, name, -1])
         else:
             for i, area in enumerate(ScreenShoter.areas):
-                name = f"{ScreenShoter.id}_{self.prefix}_{self.num}.bmp"
+                img_name = f"{name}_{ScreenShoter.id}_{self.num}.bmp"
                 img = pyscreenshot.grab(bbox=(area[0], area[1],
                                               area[2], area[3]))
-                ScreenShoter.queue.put([img, self.path + name, i])
+                ScreenShoter.queue.put([img, img_name, i])
                 self.num += 1
 
     def add_area(self):
@@ -64,12 +59,13 @@ class ScreenShoter():
         canvas.create_image(0, 0, image=img, anchor=tk.NW)
 
         if self.rect_id is None:
-            self.rect_id = canvas.create_rectangle(0, 0, 0, 0, dash=(2, 2), fill='', outline='white')
+            self.rect_id = canvas.create_rectangle(0, 0, 0, 0, dash=(2, 2),
+                                                   fill='', outline='white')
         else:
-            print(ScreenShoter.areas[index][0], ScreenShoter.areas[index][1],
-                  ScreenShoter.areas[index][2], ScreenShoter.areas[index][3])
-            self.rect_id = canvas.create_rectangle(ScreenShoter.areas[index][0], ScreenShoter.areas[index][1],
-                                                   ScreenShoter.areas[index][2], ScreenShoter.areas[index][3],
+            self.rect_id = canvas.create_rectangle(ScreenShoter.areas[index][0],
+                                                   ScreenShoter.areas[index][1],
+                                                   ScreenShoter.areas[index][2],
+                                                   ScreenShoter.areas[index][3],
                                                    dash=(2, 2), fill='', outline='white')
 
         canvas.bind('<Button-1>', get_mouse_posn)
@@ -78,13 +74,8 @@ class ScreenShoter():
 
         window.mainloop()
 
-    # def print_reg(self):
-    #     print(ScreenShoter.topx, ScreenShoter.topy, ScreenShoter.botx, ScreenShoter.boty)
-
     def fix_coord(self):
         index = len(ScreenShoter.areas) - 1
-        print(index)
-        print(ScreenShoter.areas[index])
         if ScreenShoter.areas[index][0] > ScreenShoter.areas[index][2]:
             ScreenShoter.areas[index][0], ScreenShoter.areas[index][2] = ScreenShoter.areas[index][2], \
                                                                          ScreenShoter.areas[index][0]
@@ -102,4 +93,4 @@ class ScreenFromTime(Thread):
     def run(self):
         while True:
             sleep(self.time)
-            self.screen.take_screen(f"{self.screen.id}_{self.screen.prefix}{self.screen.num}.bmp")
+            self.screen.take_screen("time")
