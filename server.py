@@ -19,9 +19,13 @@ async def handle_client(client):
             i = i + 1
             print("Получаем..")
             while (l):
+		if b'end' in l:
+		    break
                 f.write(l)
                 l = await loop.sock_recv(client, 1024)
             print("Скриншот получен")
+            f.close()
+	
 
     client.close()
 

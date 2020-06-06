@@ -42,6 +42,7 @@ def send(img):
         to_send = img_b[size * i : size*(i + 1)]
         s.send(to_send)
         i += 1
+    s.send(b'end')
 
 
 
