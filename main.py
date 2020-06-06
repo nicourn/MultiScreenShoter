@@ -1,11 +1,19 @@
 import configparser
 import os
+import socket
 from tools.hotkeyer import KeyListener
 from tools.screenshoter import ScreenShoter, ScreenFromTime
 
 config = configparser.ConfigParser()
 config.read("config.ini")
+
 pause = int(config["Setting"]["pause"])
+host = config["Setting"]["host"]
+port = int(config["Setting"]["port"])
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((host, port))
+print("Connected")
 
 shoter = ScreenShoter()
 from_time = ScreenFromTime(shoter, pause)
@@ -27,8 +35,13 @@ from_key.start()
 from_time.start()
 
 def send(img):
-    print(f"{img[1]} sending...")
-    print("Sended")
+    img_b: bytes = img[0].tobytes()
+    size = 1024
+    i = 0
+    while size * i <= len(img_b):
+        to_send = img_b[size * i : size*(i + 1)]
+        s.send(to_send)
+        i += 1
 
 
 
