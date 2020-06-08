@@ -1,8 +1,6 @@
 import asyncio
 import socket
 import random
-from PIL import Image
-import io
 
 async def get_new_connects(sock: socket.socket):
     loop = asyncio.get_event_loop()
