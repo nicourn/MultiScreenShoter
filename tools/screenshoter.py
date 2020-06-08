@@ -18,20 +18,20 @@ class ScreenShoter():
         self.num = 0
 
     def take_screen(self, name=""):
-        if name == "all_area.bmp":
+        if name == "all_area.png":
             img = pyscreenshot.grab()
-            img.save(name, "BMP")
+            img.save(name, "png")
             ScreenShoter.queue.put([img, name, -1])
         else:
             for i, area in enumerate(ScreenShoter.areas):
-                img_name = f"{name}_{ScreenShoter.id}_{self.num}.bmp"
+                img_name = f"{name}_{ScreenShoter.id}_{self.num}.png"
                 img = pyscreenshot.grab(bbox=(area[0], area[1],
                                               area[2], area[3]))
                 ScreenShoter.queue.put([img, img_name, i])
                 self.num += 1
 
     def add_area(self):
-        path = "all_area.bmp"
+        path = "all_area.png"
 
         if path not in listdir():
             self.take_screen(path)

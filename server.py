@@ -1,43 +1,54 @@
 import asyncio
 import socket
+import random
+from PIL import Image
+import io
 
-i = 0
-SERVER_ADDRESS = ('192.168.0.101', 8090)
-CONNECTIONS = 100
-
-async def handle_client(client):
-    global i
-
+async def get_new_connects(sock: socket.socket):
+    loop = asyncio.get_event_loop()
     while True:
-        #request = (await loop.sock_recv(client, 255)).decode('utf8')
-        #response = str(eval(request)) + '\n'
-        #await loop.sock_sendall(client, response.encode('utf8'))
+        conn, addr = await loop.sock_accept(sock)
+        print(f"{addr} connected")
+        await data_waiting(conn)
 
-        l = await loop.sock_recv(client, 1024)
-        if(l):
-            f = open(f'{i}.png','wb')
-            i = i + 1
-            print("Получаем..")
-            while (l):
-		if b'end' in l:
-		    break
-                f.write(l)
-                l = await loop.sock_recv(client, 1024)
-            print("Скриншот получен")
-            f.close()
-	
 
-    client.close()
+async def data_waiting(conn: socket.socket):
+    loop = asyncio.get_event_loop()
+    while conn:
+        buff = await loop.sock_recv(conn, 1024)
+        if not len(buff):
+            print("No signal")
+            await asyncio.sleep(0.5)
+        else:
+            print(len(buff))
+            print("Yes signal")
+            await get_img(conn, buff)
 
-async def run_server():
-    while True:
-        client, _ = await loop.sock_accept(server)
-        loop.create_task(handle_client(client))
 
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(SERVER_ADDRESS)
-server.listen(CONNECTIONS)
-server.setblocking(False)
+async def get_img(conn, arr):
+    name = random.randint(1, 1000)
+    loop = asyncio.get_event_loop()
+    img = b""
+    img += arr
+    while b"end" not in arr:
+        arr = await loop.sock_recv(conn, 1024)
+        img += arr
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(run_server())
+
+    with open(f"{name}.png", "wb") as file:
+        file.write(img)
+        print(f"Write {name} = {len(img)}")
+
+
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.bind(("127.0.0.1", 8090))
+sock.listen(10)
+print("Start server")
+try:
+    asyncio.run(get_new_connects(sock))
+except Exception as e:
+    print(e)
+finally:
+    sock.close()
+    print("Server close")

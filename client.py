@@ -11,8 +11,8 @@ pause = int(config["Setting"]["pause"])
 host = config["Setting"]["host"]
 port = int(config["Setting"]["port"])
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((host, port))
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.connect((host, port))
 print("Connected")
 
 shoter = ScreenShoter()
@@ -35,16 +35,25 @@ from_key.start()
 from_time.start()
 
 def send(img):
-    img_b: bytes = img[0].tobytes()
+    img_b: bytes
+    img[0].save("buff.png", "PNG")
+    #TODO Убрать костыль
+    with open("buff.png", "rb") as file:
+        img_b = file.read()
+    os.remove("buff.png")
+
     size = 1024
     i = 0
-    while size * i <= len(img_b):
-        to_send = img_b[size * i : size*(i + 1)]
-        s.send(to_send)
+    while True:
+        if (i + 1) * size > len(img_b):
+            num_zero = size - len(img_b[size*i: size*(i+1)])
+            end_bytes = img_b[size*i:size*(i+1)] + (num_zero * b"0")
+            sock.send(end_bytes)
+            sock.send(b"end")
+            break
+        sock.send(img_b[size*i: size*(i+1)])
         i += 1
-    s.send(b'end')
-
-
+    print(f"{img[1]} sended")
 
 while True:
     img = ScreenShoter.queue.get()
