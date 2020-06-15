@@ -2,25 +2,21 @@ import asyncio
 import socket
 import random
 
-async def get_new_connects(sock: socket.socket):
+async def procesed_conn(num: int, sock:socket.socket, run_server:bool):
     loop = asyncio.get_event_loop()
-    while True:
-        conn, addr = await loop.sock_accept(sock)
-        print(f"{addr} connected")
-        await data_waiting(conn)
-
-
-async def data_waiting(conn: socket.socket):
-    loop = asyncio.get_event_loop()
-    while conn:
-        buff = await loop.sock_recv(conn, 1024)
-        if not len(buff):
-            print("No signal")
-            await asyncio.sleep(0.5)
-        else:
-            print(len(buff))
-            print("Yes signal")
-            await get_img(conn, buff)
+    print(f"{num} started")
+    while run_server:
+        conn, arrd = await loop.sock_accept(sock)
+        print(f"{arrd} connect")
+        print(f"Start listing from {num}")
+        while True:
+            buff = await loop.sock_recv(conn, 1024)
+            if b"break" in buff or len(buff) == 0:
+                print(f"From {num} conn lost")
+                break
+            else:
+                print(buff)
+                # await get_img(conn, buff)
 
 
 async def get_img(conn, arr):
@@ -32,21 +28,24 @@ async def get_img(conn, arr):
         arr = await loop.sock_recv(conn, 1024)
         img += arr
 
-
     with open(f"{name}.png", "wb") as file:
         file.write(img)
         print(f"Write {name} = {len(img)}")
 
 
+async def main():
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(("0.0.0.0", 8090))
+    listen = 2
+    server.listen(listen)
+    run_server = True
+    try:
+        await asyncio.gather(*(procesed_conn(i, server, run_server) for i in range(listen)))
+    finally:
+        server.close()
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.bind(("127.0.0.1", 8090))
-sock.listen(10)
-print("Start server")
-try:
-    asyncio.run(get_new_connects(sock))
-except Exception as e:
-    print(e)
-finally:
-    sock.close()
-    print("Server close")
+
+asyncio.run(main())
+
+
+
